@@ -1,22 +1,69 @@
 
-# TDP Clusters
+# ceTDP
 
-Software for computing lower and upper bounds for the k-separator problem.
+Software for computing lower bounds on the **True Discovery Number (TDN)** and **True Discovery Proportion (TDP)** in neuroimaging cluster-based inference problems.
 
-Cluster extent inference revisited: quantification and localisation of brain activity 
-Jelle J Goeman, Paweł Górecki, Ramin Monajemi, Xu Chen, Thomas E Nichols, Wouter Weeda,
-Journal of the Royal Statistical Society Series B: Statistical Methodology, Volume 85, Issue 4, September 2023, Pages 1128–1153, https://doi.org/10.1093/jrsssb/qkad067
+## Overview
+
+This software quantifies how much of your detected activation is truly non-null.
+
+It is based on solving a **k-separator problem**, i.e. finding the minimum number of nodes whose removal splits a graph into connected components of size at most *k*.
+
+After computing a lower bound for TDN, the corresponding TDP bound is:
+
+$\text{TDP} = \frac{\text{TDN}}{|\text{S}|}$,
+
+where |S| is the size of the selected region.
+
+## Methods
+
+This repository implements methods from:
+
+> **Cluster extent inference revisited: quantification and localisation of brain activity**,
+> Jelle J Goeman, Paweł Górecki, Ramin Monajemi, Xu Chen, Thomas E Nichols, and Wouter Weeda, *Journal of the Royal Statistical Society Series B: Statistical Methodology*, Volume 85, Issue 4, September 2023, Pages 1128–1153, https://doi.org/10.1093/jrsssb/qkad067
+
+It allows you to quantify:
+
+- **TDN** – number of true discoveries  
+- **TDP** – proportion of true discoveries  
+
+## Implementations
+
+- **ceTDP_cons (conservative)**
+
+   Statistically guaranteed lower bounds for TDN based on Lemma 5 from the paper (Implemented in Python)
+
+- **ceTDP_appr (approximate)**
+
+   Approximate (and potentially tighter) lower bounds for TDN using a two-phase heuristic algorithm (Implemented in C)
+
 
 ## Directories 
 
-Main directories:
-- `lowerbouds` - a python library `lowerbounds.py` for computing lower bounds based on Lemma 5 from the article
-- `upperbounds` - `fgreedy`  written in C to compute upper bounds
+**Main directories:**
+- `lowerbounds` - Python library (`lowerbounds.py`) implementing **ceTDP_cons**
+- `upperbounds` - C implementation (`fgreedy`) for **ceTDP_appr**
 
-Other directories:
-- `data` - exemplary input data (e.g., figure2.tsv data from the Figure 2)
-- `plot` - plotting fgreedy output clusterings
-- `cubetest` - heuristic cube test from the article
+**Other directories:**
+- `data` - exemplary input data (e.g., `figure2.tsv` from the Figure 2)
+- `plot` - scripts for visualizing clustering results
+- `cubetest` - heuristic cube test described in the paper
+
+## Quick Start
+
+- **Run conservative bounds (Python)**
+
+   ```bash
+   python lowerbounds/lowerbounds.py -k10 data/figure2.tsv
+   ```
+
+- **Run approximate bounds (C)**
+
+   ```bash
+   cd upperbounds
+   make
+   ./fgreedy -k10 ../data/figure2.tsv
+   ```
 
 # Fgreedy - upper bounds
 
