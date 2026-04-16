@@ -1,69 +1,71 @@
+# ceTDP-appr
 
-# ceTDP
-
-Software for computing lower bounds on the **True Discovery Number (TDN)** and **True Discovery Proportion (TDP)** in neuroimaging cluster-based inference problems.
+C implementation of calculating **approximate** lower bounds for TDN (True Discovery Number) and TDP (True Discovery Proportion) in neuroimaging cluster-based inference.
 
 ## Overview
 
-This software quantifies how much of your detected activation is truly non-null.
-
-It is based on solving a **k-separator problem**, i.e. finding the minimum number of nodes whose removal splits a graph into connected components of size at most *k*.
+This tool quantifies how much of your detected activation is truly non-null using a **two-phase heuristic algorithm** that provides approximate (and potentially tighter) lower bounds.
 
 After computing a lower bound for TDN, the corresponding TDP bound is:
 
-$\text{TDP} = \frac{\text{TDN}}{|\text{S}|}$,
+**TDP = TDN / |S|**
 
 where |S| is the size of the selected region.
 
+> **Note:** It is based on solving a k-separator problem, i.e., finding the minimum number of nodes whose removal splits a graph into connected components of size at most *k*.
+
 ## Methods
 
-This repository implements methods from:
+This implementation is based on:
 
 > **Cluster extent inference revisited: quantification and localisation of brain activity**,
-> Jelle J Goeman, Paweł Górecki, Ramin Monajemi, Xu Chen, Thomas E Nichols, and Wouter Weeda, *Journal of the Royal Statistical Society Series B: Statistical Methodology*, Volume 85, Issue 4, September 2023, Pages 1128–1153, https://doi.org/10.1093/jrsssb/qkad067
+> Jelle J Goeman, Paweł Górecki, Ramin Monajemi, Xu Chen, Thomas E Nichols, and Wouter Weeda,
+> *Journal of the Royal Statistical Society Series B: Statistical Methodology*, Volume 85, Issue 4, September 2023, Pages 1128–1153
+> https://doi.org/10.1093/jrsssb/qkad067
 
-It allows you to quantify:
+## Directories
 
-- **TDN** – number of true discoveries  
-- **TDP** – proportion of true discoveries  
-
-## Implementations
-
-- **ceTDP_cons (conservative)**
-
-   Statistically guaranteed lower bounds for TDN based on Lemma 5 from the paper (Implemented in Python)
-
-- **ceTDP_appr (approximate)**
-
-   Approximate (and potentially tighter) lower bounds for TDN using a two-phase heuristic algorithm (Implemented in C)
-
-
-## Directories 
-
-**Main directories:**
-- `lowerbounds` - Python library (`lowerbounds.py`) implementing **ceTDP_cons**
-- `upperbounds` - C implementation (`fgreedy`) for **ceTDP_appr**
-
-**Other directories:**
-- `data` - exemplary input data (e.g., `figure2.tsv` from the Figure 2)
-- `plot` - scripts for visualizing clustering results
-- `cubetest` - heuristic cube test described in the paper
+| Directory | Description |
+|-----------|-------------|
+| `upperbounds/` | Main C implementation (`fgreedy`) |
+| `data/` | Example input data (e.g., `figure2.tsv` for Figure 2 in the paper) |
+| `plot/` | Scripts for visualizing clustering results |
+| `cubetest/` | Heuristic cube test described in the paper |
+| `lowerbounds` | Python library (`lowerbounds.py`) for computing conservative lower bounds based on Lemma 5 in the paper |
 
 ## Quick Start
 
-- **Run conservative bounds (Python)**
+```bash
+cd upperbounds
+make
+./fgreedy -k<k-value> <input>
+```
 
-   ```bash
-   python lowerbounds/lowerbounds.py -k10 data/figure2.tsv
-   ```
+## Example
 
-- **Run approximate bounds (C)**
+```bash
+./fgreedy -k10 ../data/figure2.tsv
+```
 
-   ```bash
-   cd upperbounds
-   make
-   ./fgreedy -k10 ../data/figure2.tsv
-   ```
+### Arguments
+
+- `-k`: Minimum significant cluster size minus 1 (output from Stage 1)
+  
+- `input`: A CSV/TSV file with voxel coordinates (`x`, `y`, `z`) for a single region (derived from Stage 1)
+  
+  Example of input format:
+  ```bash
+  x,y,z
+  26,72,24
+  27,72,24
+  30,72,24
+  ...
+  ```
+
+### Output
+
+A single integer: the estimated TDN lower bound.
+
 
 # Fgreedy - upper bounds
 
